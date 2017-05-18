@@ -60,6 +60,7 @@ public class CalculateSales {
 					br.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
+					return;
 				}
 			}
 		}
@@ -96,6 +97,7 @@ public class CalculateSales {
 					br2.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
+					return;
 				}
 			}
 		}
@@ -127,6 +129,7 @@ public class CalculateSales {
 				System.out.println("売上ファイル名が連番になっていません");
 				return;
 			}
+		}
 
 		File sales;
 		FileReader fr = null;
@@ -143,6 +146,12 @@ public class CalculateSales {
 				}
 				if(saler.size() != 3){
 					System.out.println(filenames.get(i) + "のフォーマットが不正です");
+					return;
+				}
+
+				if(saler.get(2).matches(".*[^0-9].*")){
+					System.out.println("予期せぬエラーが発生しました");
+					return;
 				}
 
 				if(!branchLstmap.containsKey(saler.get(0))){
@@ -165,9 +174,6 @@ public class CalculateSales {
 					return;
 				}
 
-				branchSalesmap.put(saler.get(0), branchTotal);
-
-
 				long commodityTally = commoditySalesmap.get(saler.get(1));
 				long commodityTotal = commodityTally + solosale;
 
@@ -176,6 +182,7 @@ public class CalculateSales {
 					return;
 				}
 
+				branchSalesmap.put(saler.get(0), branchTotal);
 				commoditySalesmap.put(saler.get(1), commodityTotal);
 			}
 		}
@@ -195,77 +202,77 @@ public class CalculateSales {
 
 
 
-			//＜処理内容４-１＞支店別集計結果の出力
-			FileWriter fw;
-			BufferedWriter bw = null;
+		//＜処理内容４-１＞支店別集計結果の出力
+		FileWriter fw;
+		BufferedWriter bw = null;
 
-			List<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(branchSalesmap.entrySet());
-			Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
-				//@Override
-				public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
-					return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-				}
-			});
+		List<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(branchSalesmap.entrySet());
+		Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
+			//@Override
+			public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
+				return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
+			}
+		});
 
 
-			try{
-				File brFile = new File(args[0] + File.separator + "branch.out");
-				fw = new FileWriter (brFile);
-				bw = new BufferedWriter (fw);
+		try{
+			File brFile = new File(args[0] + File.separator + "branch.out");
+			fw = new FileWriter (brFile);
+			bw = new BufferedWriter (fw);
 
-				for (Entry<String,Long> s : entries) {
-					bw.write(s.getKey() + "," + branchLstmap.get(s.getKey()) + "," + s.getValue());
-					bw.newLine();
+			for (Entry<String,Long> s : entries) {
+				bw.write(s.getKey() + "," + branchLstmap.get(s.getKey()) + "," + s.getValue());
+				bw.newLine();
+			}
+		}
+		catch(IOException e){
+			System.out.println("予期せぬエラーが発生しました");
+			return;
+		}finally{
+			if(bw != null){
+				try{
+					bw.close();
+				} catch (IOException e) {
+					System.out.println("予期せぬエラーが発生しました");
 				}
 			}
-			catch(IOException e){
-				System.out.println("予期せぬエラーが発生しました");
-				return;
-			}finally{
-				if(bw != null){
-					try{
-						bw.close();
-					} catch (IOException e) {
-						System.out.println("予期せぬエラーが発生しました");
-					}
-				}
+		}
+
+
+		FileWriter fw2;
+		BufferedWriter bw2 = null;
+
+		List<Map.Entry<String,Long>> entries2 = new ArrayList<Map.Entry<String,Long>>(commoditySalesmap.entrySet());
+		Collections.sort(entries2, new Comparator<Map.Entry<String,Long>>() {
+			//@Override
+			public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
+				return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
 			}
+		});
 
+		try{
+			File coFile = new File(args[0] + File.separator + "commodity.out");
+			fw2 = new FileWriter(coFile);
+			bw2 = new BufferedWriter (fw2);
 
-			FileWriter fw2;
-			BufferedWriter bw2 = null;
-
-			List<Map.Entry<String,Long>> entries2 = new ArrayList<Map.Entry<String,Long>>(commoditySalesmap.entrySet());
-			Collections.sort(entries2, new Comparator<Map.Entry<String,Long>>() {
-				//@Override
-				public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
-					return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-				}
-			});
-
-			try{
-				File coFile = new File(args[0] + File.separator + "commodity.out");
-				fw2 = new FileWriter(coFile);
-				bw2 = new BufferedWriter (fw2);
-
-				for (Entry<String,Long> s : entries2) {
-					bw2.write(s.getKey() + "," + commodityLstmap.get(s.getKey()) + "," + s.getValue());
-					bw2.newLine();
-				}
+			for (Entry<String,Long> s : entries2) {
+				bw2.write(s.getKey() + "," + commodityLstmap.get(s.getKey()) + "," + s.getValue());
+				bw2.newLine();
 			}
-			catch(IOException e){
-				System.out.println("予期せぬエラーが発生しました");
-				return;
-			}finally{
-				if(bw2 != null){
-					try{
-						bw2.close();
-					} catch (IOException e) {
-						System.out.println("予期せぬエラーが発生しました");
-					}
+		}
+		catch(IOException e){
+			System.out.println("予期せぬエラーが発生しました");
+			return;
+		}finally{
+			if(bw2 != null){
+				try{
+					bw2.close();
+				} catch (IOException e) {
+					System.out.println("予期せぬエラーが発生しました");
 				}
 			}
 		}
 	}
 }
+
 
