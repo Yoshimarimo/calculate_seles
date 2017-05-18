@@ -110,12 +110,15 @@ public class CalculateSales {
 
 		//以下、全ファイル数繰り返す
 		for(int i = 0; i < filelist.length; i++){
-			String faileName =filelist[i];
-
-			//名前が「8桁.rcd」
-			if(faileName.matches("^\\d{8}.rcd$")){
+			String fileName =filelist[i];
+			//該当データがファイル　かつ　名前が「8桁.rcd」
+			if(!new File (args[0],fileName).isFile()){
+				System.out.println("売上ファイル名が連番になっていません");
+				return;
+			}
+			if(fileName.matches("^\\d{8}.rcd$")){
 				//「filenames」リストに格納
-				filenames.add(faileName);
+				filenames.add(fileName);
 			}
 		}
 
