@@ -68,7 +68,7 @@ public class CalculateSales {
 		/*＜処理内容２＞商品定義ファイルの読み込み*/
 		BufferedReader br2 = null;
 		try{
-			File filec = new File(args[0]+ File.separator +"commodity.lst");
+			File filec = new File(args[0] + File.separator + "commodity.lst");
 			if(!filec.exists()){
 				System.out.println("商品定義ファイルが存在しません");
 				return;
@@ -112,16 +112,12 @@ public class CalculateSales {
 		for(int i = 0; i < filelist.length; i++){
 			String fileName =filelist[i];
 			//該当データがファイル　かつ　名前が「8桁.rcd」
-			if(!new File (args[0],fileName).isFile()){
-				System.out.println("売上ファイル名が連番になっていません");
-				return;
-			}
-			if(fileName.matches("^\\d{8}.rcd$")){
-				//「filenames」リストに格納
+			if((new File (args[0],fileName).isFile()) && fileName.matches("^\\d{8}.rcd$")){
 				filenames.add(fileName);
 			}
+			//「filenames」リストに格納
+			
 		}
-
 		Collections.sort(filenames);
 		for(int j = 0; j < (filenames.size()-1); j++){
 			int k = j + 1;
