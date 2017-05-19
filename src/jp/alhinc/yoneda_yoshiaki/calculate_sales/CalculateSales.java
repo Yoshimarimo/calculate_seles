@@ -15,90 +15,104 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class CalculateSales {
-	public static void main(String[] args){
-		if(args.length != 1){
-			System.out.println("予期せぬエラーが発生しました");
-			return;
+
+
+
+	//＜処理内容４-１＞支店別集計結果の出力
+	/////////////////   outputSales method   //////////////
+	public static boolean outputSales (HashMap<String,Long> sm , HashMap<String,String> sn, String filePass , String outfileName){
+		List<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(sm.entrySet());
+		Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
+			//@Override
+			public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
+				return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
+			}
+		});
+		FileWriter fw;
+		BufferedWriter bw = null;
+		try{
+			File TotalFile = new File(filePass + File.separator + outfileName);
+			fw = new FileWriter(TotalFile);
+			bw = new BufferedWriter (fw);
+			for (Entry<String,Long> s : entries) {
+				bw.write(s.getKey() + "," + sn.get(s.getKey()) + "," + s.getValue());
+				bw.newLine();
+			}
 		}
-		HashMap<String,String> branchLstmap = new HashMap<String,String>();
-		HashMap<String,Long> branchSalesmap = new HashMap<String,Long>();
-		HashMap<String,String> commodityLstmap = new HashMap<String,String>();
-		HashMap<String,Long> commoditySalesmap = new HashMap<String,Long>();
-		ArrayList<String> filenames = new ArrayList<String>();
+		catch(IOException e){
+			System.out.println("予期せぬエラーが発生しました");
+			return false;
+		}
+		finally{
+			if(bw != null){
+				try{
+					bw.close();
+				} catch (IOException e) {
+					System.out.println("予期せぬエラーが発生しました");
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
-		//例外によるエラー表示処理（予期せぬエラーが発生しました。）
-		/*＜処理内容１＞支店定義ファイル読み込み*/
-
+	public static boolean iutputDate (String filepass , String infileName , String erule , String error , HashMap<String,String> sm , HashMap<String,Long> sn){
 		BufferedReader br = null;
 		try{
-			File fileb = new File(args[0]+ File.separator +"branch.lst");
-			if(!fileb.exists()){
-				System.out.println("支店定義ファイルが存在しません");
-				return;
+			File file = new File(filepass + File.separator +infileName);
+			if(!file.exists()){
+				System.out.println( error +"が存在しません");
+				return false;
 			}
-			FileReader fr = new FileReader(fileb);
+			FileReader fr = new FileReader(file);
 			br = new BufferedReader (fr);
 			String s;
 			String[] items = null;
 			while((s = br.readLine()) != null){
 				items = s.split(",");
 
-				if((items.length != 2) || (!items[0].matches("^\\d{3}$"))){
-					System.out.println("支店定義ファイルのフォーマットが不正です");
-					return;
+				if((items.length != 2) || (!items[0].matches(erule))){
+					System.out.println( error +"のフォーマットが不正です");
+					return false;
 				}
-				branchLstmap.put (items[0],items[1]);
-				branchSalesmap.put (items[0],0L);
+				sm.put (items[0],items[1]);
+				sn.put (items[0],0L);
 			}
 		}
 		catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
-			return;
+			return false;
 		}finally{
 			if(br != null){
 				try{
 					br.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
-					return;
+					return false;
 				}
 			}
 		}
+		return true;
+	}
 
-		/*＜処理内容２＞商品定義ファイルの読み込み*/
-		BufferedReader br2 = null;
-		try{
-			File filec = new File(args[0] + File.separator + "commodity.lst");
-			if(!filec.exists()){
-				System.out.println("商品定義ファイルが存在しません");
-				return;
-			}
-			FileReader fr = new FileReader(filec);
-			br2 = new BufferedReader (fr);
-			String s;
-			String[] items = null;
-			while((s = br2.readLine()) != null){
-				items = s.split(",");
+	public static void main(String[] args){
 
-				if((items.length != 2)  || (!items[0].matches("^\\w{8}$"))){
-					System.out.println("商品定義ファイルのフォーマットが不正です");
-					return;
-				}
-				commodityLstmap.put (items[0],items[1]);
-				commoditySalesmap.put (items[0],0L);
-			}
-		}
-		catch(IOException e){
+		HashMap<String,String> branchLstmap = new HashMap<String,String>();
+		HashMap<String,Long> branchSalesmap = new HashMap<String,Long>();
+		HashMap<String,String> commodityLstmap = new HashMap<String,String>();
+		HashMap<String,Long> commoditySalesmap = new HashMap<String,Long>();
+		ArrayList<String> filenames = new ArrayList<String>();
+		if(args.length != 1){
 			System.out.println("予期せぬエラーが発生しました");
 			return;
-		}finally{
-			if(br2 != null){
-				try{
-					br2.close();
-				} catch (IOException e) {
-					System.out.println("予期せぬエラーが発生しました");
-					return;
-				}
+		}
+
+
+		//例外によるエラー表示処理（予期せぬエラーが発生しました。）
+		/*＜処理内容１＞支店定義ファイル読み込み*/
+		if(iutputDate (args[0] , "branch.lst" , "^\\d{3}$" , "支店定義ファイル" , branchLstmap , branchSalesmap)){
+
+			if(iutputDate (args[0] , "commodity.lst" , "^\\w{8}$" , "商品定義ファイル" , commodityLstmap , commoditySalesmap)){
 			}
 		}
 
@@ -116,7 +130,7 @@ public class CalculateSales {
 				filenames.add(fileName);
 			}
 			//「filenames」リストに格納
-			
+
 		}
 		Collections.sort(filenames);
 		for(int j = 0; j < (filenames.size()-1); j++){
@@ -194,84 +208,20 @@ public class CalculateSales {
 					br3.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
+					return;
 				}
 			}
 		}
-
-
-
 
 		//＜処理内容４-１＞支店別集計結果の出力
-		FileWriter fw;
-		BufferedWriter bw = null;
+		String filepass = args[0];
+		if(outputSales (branchSalesmap  ,branchLstmap, filepass , "branch.out")){
 
-		List<Map.Entry<String,Long>> entries = new ArrayList<Map.Entry<String,Long>>(branchSalesmap.entrySet());
-		Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
-			//@Override
-			public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
-				return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-			}
-		});
-
-
-		try{
-			File brFile = new File(args[0] + File.separator + "branch.out");
-			fw = new FileWriter (brFile);
-			bw = new BufferedWriter (fw);
-
-			for (Entry<String,Long> s : entries) {
-				bw.write(s.getKey() + "," + branchLstmap.get(s.getKey()) + "," + s.getValue());
-				bw.newLine();
-			}
-		}
-		catch(IOException e){
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		}finally{
-			if(bw != null){
-				try{
-					bw.close();
-				} catch (IOException e) {
-					System.out.println("予期せぬエラーが発生しました");
-				}
-			}
-		}
-
-
-		FileWriter fw2;
-		BufferedWriter bw2 = null;
-
-		List<Map.Entry<String,Long>> entries2 = new ArrayList<Map.Entry<String,Long>>(commoditySalesmap.entrySet());
-		Collections.sort(entries2, new Comparator<Map.Entry<String,Long>>() {
-			//@Override
-			public int compare(Entry<String,Long> entry1, Entry<String,Long> entry2) {
-				return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-			}
-		});
-
-		try{
-			File coFile = new File(args[0] + File.separator + "commodity.out");
-			fw2 = new FileWriter(coFile);
-			bw2 = new BufferedWriter (fw2);
-
-			for (Entry<String,Long> s : entries2) {
-				bw2.write(s.getKey() + "," + commodityLstmap.get(s.getKey()) + "," + s.getValue());
-				bw2.newLine();
-			}
-		}
-		catch(IOException e){
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		}finally{
-			if(bw2 != null){
-				try{
-					bw2.close();
-				} catch (IOException e) {
-					System.out.println("予期せぬエラーが発生しました");
-				}
+			if(outputSales (commoditySalesmap ,commodityLstmap, filepass , "commodity.out")){
 			}
 		}
 	}
 }
+
 
 
