@@ -217,9 +217,10 @@ public class CalculateSales {
 		//＜処理内容４-１＞支店別集計結果の出力
 		String filepass = args[0];
 		if(!outputSales (branchSalesmap  ,branchLstmap, filepass , "branch.out")){
-			
+			return;
 		}
 		if(!outputSales (commoditySalesmap ,commodityLstmap, filepass , "commodity.out")){
+			return;
 		}
 	}
 }
