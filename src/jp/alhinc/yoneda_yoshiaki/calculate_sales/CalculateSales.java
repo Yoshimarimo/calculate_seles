@@ -110,10 +110,11 @@ public class CalculateSales {
 
 		//例外によるエラー表示処理（予期せぬエラーが発生しました。）
 		/*＜処理内容１＞支店定義ファイル読み込み*/
-		if(iutputDate (args[0] , "branch.lst" , "^\\d{3}$" , "支店定義ファイル" , branchLstmap , branchSalesmap)){
-
-			if(iutputDate (args[0] , "commodity.lst" , "^\\w{8}$" , "商品定義ファイル" , commodityLstmap , commoditySalesmap)){
-			}
+		if(!iutputDate (args[0] , "branch.lst" , "^\\d{3}$" , "支店定義ファイル" , branchLstmap , branchSalesmap)){
+			return;
+		}
+		if(!iutputDate (args[0] , "commodity.lst" , "^\\w{8}$" , "商品定義ファイル" , commodityLstmap , commoditySalesmap)){
+			return;
 		}
 
 
@@ -215,10 +216,10 @@ public class CalculateSales {
 
 		//＜処理内容４-１＞支店別集計結果の出力
 		String filepass = args[0];
-		if(outputSales (branchSalesmap  ,branchLstmap, filepass , "branch.out")){
-
-			if(outputSales (commoditySalesmap ,commodityLstmap, filepass , "commodity.out")){
-			}
+		if(!outputSales (branchSalesmap  ,branchLstmap, filepass , "branch.out")){
+			
+		}
+		if(!outputSales (commoditySalesmap ,commodityLstmap, filepass , "commodity.out")){
 		}
 	}
 }
